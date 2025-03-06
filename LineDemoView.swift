@@ -66,21 +66,7 @@ struct LineDemoView: View {
                         )
                 }
                 
-                // Draggable view
-                Rectangle()
-                    .fill(Color.green)
-                    .frame(width: dragSize.width, height: dragSize.height)
-                    .position(dragPosition)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                dragPosition = value.location
-                                checkAlignment(parentSize: geometry.size)
-                            }
-                            .onEnded { _ in
-                                lines.removeAll()
-                            }
-                    )
+                
                 
                 // Alignment lines
                 ForEach(lines, id: \.id) { line in
@@ -113,12 +99,12 @@ struct LineDemoView: View {
                                      y: staticView.position.y - staticView.size.height / 2,
                                      width: staticView.size.width,
                                      height: staticView.size.height)
-            checkVerticalAlignments(dragFrame: dragFrame, staticFrame: staticFrame)
+          //  checkVerticalAlignments(dragFrame: dragFrame, staticFrame: staticFrame)
             checkHorizontalAlignments(dragFrame: dragFrame, staticFrame: staticFrame)
         }
     }
     
-    func triggerHapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle = .soft) {
+    func triggerHapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle = .init(rawValue: Int(0.06))!) {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.prepare()  // Prepare the generator for immediate feedback
         generator.impactOccurred()
@@ -145,7 +131,7 @@ struct LineDemoView: View {
                                      y: staticView.position.y - staticView.size.height / 2,
                                      width: staticView.size.width,
                                      height: staticView.size.height)
-            checkVerticalAlignments(dragFrame: dragFrame, staticFrame: staticFrame)
+            checkVerticalAlignments(dragFrame: dragFrame, staticFrame: staticFrame, currentStaticView: currentStaticView)
             checkHorizontalAlignments(dragFrame: dragFrame, staticFrame: staticFrame)
         }
     }
@@ -161,6 +147,7 @@ struct LineDemoView: View {
                 start: CGPoint(x: parentCenter.x, y: 0),
                 end: CGPoint(x: parentCenter.x, y: parentSize.height)
             ))
+            triggerHapticFeedback()
         }
         
         // Horizontal center line (full width)
@@ -169,10 +156,11 @@ struct LineDemoView: View {
                 start: CGPoint(x: 0, y: parentCenter.y),
                 end: CGPoint(x: parentSize.width, y: parentCenter.y)
             ))
+            triggerHapticFeedback()
         }
     }
     
-    private func checkVerticalAlignments(dragFrame: CGRect, staticFrame: CGRect) {
+    private func checkVerticalAlignments(dragFrame: CGRect, staticFrame: CGRect,currentStaticView:StaticView) {
         let tolerance: CGFloat = 0.6
         
         // First, check if centers are aligned.
@@ -180,6 +168,11 @@ struct LineDemoView: View {
             addVerticalLine(x: dragFrame.midX, staticFrame: staticFrame, dragFrame: dragFrame)
             return
         }
+//        else if abs(dragFrame.midX - staticFrame.midX) <= 5 {
+//            if let index = staticViews.firstIndex(where: { $0.id == currentStaticView.id }) {
+//                staticViews[index].position = CGPoint(x: staticFrame.midX, y: currentStaticView.position.y)
+//            }
+//        }
         
         // Otherwise, check edge alignments.
         var xPositions = [CGFloat]()
@@ -274,8 +267,6 @@ struct LineDemoView: View {
         triggerHapticFeedback()
     }
 }
-
-
 
 
 
